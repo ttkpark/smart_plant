@@ -482,3 +482,30 @@ python -c "import RPi.GPIO; import Adafruit_DHT; import requests; print('OK')"
 
 이렇게 **데이터 보관 및 이력 조회를 쉽게 하고 싶을 때** DB가 편리하나,  
 **프로젝트 요구사항**에 따라 **최소한의 로컬 저장**만으로도 충분히 돌아갈 수 있다는 점을 참고하시면 되겠습니다.
+# 시작법
+```bash
+python -m app.main
+```
+
+# bot 정보
+- bot token : 7568892274:AAGk9j4hJ76p96aJWYi8a8nBWqHl7fAVg6k
+- invitation link : t.me/smart_plant_a123_bot
+
+- bot to Giho Park ID : 7541879616
+- how to get : https://api.telegram.org/bot7568892274:AAGk9j4hJ76p96aJWYi8a8nBWqHl7fAVg6k/getUpdates
+여기서 from id를 잘 찾아보라.
+
+- [메시지 조회](https://api.telegram.org/bot봇Token값/getUpdates)
+
+- [메시지 보내기](https://api.telegram.org/bot[봇토큰]/sendmessage?chat_id=[챗아이디]&text=[보낼메시지])
+
+# 이 앱에 사용자 ID 넣는 법
+```python
+# project directory로 들어간다.
+python
+from app import db
+db.save_telegram_chat_id("YOUR_ID")
+
+#확인법
+print(db.get_telegram_chat_id())
+```
