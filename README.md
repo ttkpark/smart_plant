@@ -488,10 +488,8 @@ python -m app.main
 ```
 
 # bot 정보
-- bot token : 7568892274:AAGk9j4hJ76p96aJWYi8a8nBWqHl7fAVg6k
 - invitation link : t.me/smart_plant_a123_bot
 
-- bot to Giho Park ID : 7541879616
 - how to get : https://api.telegram.org/bot7568892274:AAGk9j4hJ76p96aJWYi8a8nBWqHl7fAVg6k/getUpdates
 여기서 from id를 잘 찾아보라.
 

@@ -10,7 +10,7 @@ from app.config import (
     CHECK_INTERVAL
 )
 from app.sensor_manager import read_moisture, read_temperature_and_humidity, read_light
-from app.button_manager import check_button_press
+from app.button_manager import check_button_press,led_out
 from app.notification import send_telegram_message
 
 def main_loop():
@@ -24,6 +24,8 @@ def main_loop():
     db.init_db()  # DB 초기화 (테이블 없으면 생성)
 
     last_notify_time = None
+    
+    is_moist_full = False
 
     while True:
         # -----------------
@@ -39,32 +41,40 @@ def main_loop():
         # -----------------
         db.insert_sensor_data(moisture, temperature, humidity, light_val)
 
-        # -----------------
-        # 3) 물 준 이벤트 판별
-        #    (A) 수분센서 값이 WATER_GIVEN_THRESHOLD 이상일 때
-        #    (B) 버튼 3초 이상 눌렀을 때
-        # -----------------
-        water_given_by_sensor = (moisture >= WATER_GIVEN_THRESHOLD)
-        water_given_by_button = check_button_press(press_seconds=3)
+        if (moisture < WATER_GIVEN_THRESHOLD) and (is_moist_full):
+            is_moist_full = False
+        
+        water_given_by_sensor = (moisture >= WATER_GIVEN_THRESHOLD) and (not is_moist_full)
 
-        if water_given_by_sensor or water_given_by_button:
-            method = "sensor" if water_given_by_sensor else "button"
-            db.insert_watering_event(method=method)
-            send_telegram_message(f"[{method}] 방금 물을 준 것으로 인식했어요! 싱싱해지고 있어요~")
+        for x in range(30):
+            # -----------------
+            # 3) 물 준 이벤트 판별
+            #    (A) 수분센서 값이 WATER_GIVEN_THRESHOLD 이상일 때
+            #    (B) 버튼 3초 이상 눌렀을 때
+            # -----------------
+            water_given_by_button = check_button_press(press_seconds=3)
 
-        # -----------------
-        # 4) 목마름(임계 이하) 알림
-        #    - 일정 시간(예: 6시간 or 24시간) 주기로만 알림
-        # -----------------
-        if moisture < MOISTURE_THRESHOLD:
-            if not last_notify_time or (datetime.now() - last_notify_time) > timedelta(hours=6):
-                send_telegram_message("나 목말라요 ㅠ 물 주세요!")
-                last_notify_time = datetime.now()
+            if water_given_by_sensor or water_given_by_button:
+                method = "sensor" if water_given_by_sensor else "button"
+                db.insert_watering_event(method=method)
+                send_telegram_message(f"[{method}] 방금 물을 준 것으로 인식했어요! 싱싱해지고 있어요~")
 
-        # -----------------
-        # 5) 대기 후 반복
-        # -----------------
-        time.sleep(CHECK_INTERVAL)
+            # -----------------
+            # 4) 목마름(임계 이하) 알림
+            #    - 일정 시간(예: 6시간 or 24시간) 주기로만 알림
+            # -----------------
+            if moisture < MOISTURE_THRESHOLD:
+                if not last_notify_time or (datetime.now() - last_notify_time) > timedelta(hours=6):
+                    send_telegram_message("나 목말라요 ㅠ 물 주세요!")
+                    last_notify_time = datetime.now()
+
+            # -----------------
+            # 5) 대기 후 반복
+            # -----------------
+            led_out(1)
+            time.sleep(CHECK_INTERVAL/60)
+            led_out(0)
+            time.sleep(CHECK_INTERVAL/60)
 
 if __name__ == "__main__":
     main_loop()
