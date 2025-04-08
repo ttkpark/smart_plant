@@ -55,6 +55,7 @@ def main_loop():
             water_given_by_button = check_button_press(press_seconds=3)
 
             if water_given_by_sensor or water_given_by_button:
+                is_moist_full = True
                 method = "sensor" if water_given_by_sensor else "button"
                 db.insert_watering_event(method=method)
                 send_telegram_message(f"[{method}] 방금 물을 준 것으로 인식했어요! 싱싱해지고 있어요~")
