@@ -44,14 +44,13 @@ def main_loop():
         if (moisture < WATER_GIVEN_THRESHOLD) and (is_moist_full):
             is_moist_full = False
         
-        water_given_by_sensor = (moisture >= WATER_GIVEN_THRESHOLD) and (not is_moist_full)
-
         for x in range(30):
             # -----------------
             # 3) 물 준 이벤트 판별
             #    (A) 수분센서 값이 WATER_GIVEN_THRESHOLD 이상일 때
             #    (B) 버튼 3초 이상 눌렀을 때
             # -----------------
+            water_given_by_sensor = (moisture >= WATER_GIVEN_THRESHOLD) and (not is_moist_full)
             water_given_by_button = check_button_press(press_seconds=3)
 
             if water_given_by_sensor or water_given_by_button:
